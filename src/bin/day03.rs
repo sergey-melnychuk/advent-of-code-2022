@@ -5,12 +5,13 @@ use advent_of_code_2022::lines;
 fn main() {
     let lines = lines();
 
-    let part1 = lines.iter()
+    let part1 = lines
+        .iter()
         .flat_map(|line| {
             let (a, b) = split(line);
             and2(a, b)
         })
-        .map(|chr| priority(chr))
+        .map(priority)
         .sum::<usize>();
     println!("{}", part1);
 
@@ -22,19 +23,25 @@ fn part2(lines: &[String]) -> usize {
     let n = lines.len();
     let mut code = vec!['?'; n];
 
-    for x in 0..(n-2) {
-        if code[x] != '?' { continue; }
+    for x in 0..(n - 2) {
+        if code[x] != '?' {
+            continue;
+        }
         for y in (x + 1)..n {
-            if code[y] != '?' { continue; }
+            if code[y] != '?' {
+                continue;
+            }
             for z in (y + 1)..n {
-                if code[z] != '?' { continue; }
-                let overlap = and3(&lines[x], &lines[y], &lines[z]);                
+                if code[z] != '?' {
+                    continue;
+                }
+                let overlap = and3(&lines[x], &lines[y], &lines[z]);
                 if overlap.len() == 1 {
                     let w = overlap[0];
                     if code[x] == '?' && code[y] == '?' && code[z] == '?' {
                         code[x] = w;
                         code[y] = w;
-                        code[z] = w;    
+                        code[z] = w;
                     }
                 }
             }
@@ -52,9 +59,7 @@ fn part2(lines: &[String]) -> usize {
         panic!("Unassigned items detected")
     }
 
-    code.iter()
-        .map(|chr| priority(*chr))
-        .sum::<usize>() / 3
+    code.iter().map(|chr| priority(*chr)).sum::<usize>() / 3
 }
 
 fn split(s: &str) -> (&str, &str) {
@@ -79,10 +84,10 @@ fn and3(a: &str, b: &str, c: &str) -> Vec<char> {
 
 fn priority(chr: char) -> usize {
     let c = chr as u8;
-    if c >= b'a' && c <= b'z' {
+    if (b'a'..=b'z').contains(&c) {
         return (c - b'a' + 1) as usize;
     }
-    if c >= b'A' && c <= b'Z' {
+    if (b'A'..=b'Z').contains(&c) {
         return (c - b'A' + 1 + 26) as usize;
     }
     panic!("Unexpected char: {}", chr)

@@ -12,14 +12,14 @@ fn play1(a: u8, b: u8) -> u64 {
     match (a, b) {
         (b'A', b'X') => 1 + 3,
         (b'A', b'Y') => 2 + 6,
-        (b'A', b'Z') => 3 + 0,
-        (b'B', b'X') => 1 + 0,
+        (b'A', b'Z') => 3,
+        (b'B', b'X') => 1,
         (b'B', b'Y') => 2 + 3,
         (b'B', b'Z') => 3 + 6,
         (b'C', b'X') => 1 + 6,
-        (b'C', b'Y') => 2 + 0,
+        (b'C', b'Y') => 2,
         (b'C', b'Z') => 3 + 3,
-        _ => 0
+        _ => 0,
     }
 }
 
@@ -33,16 +33,16 @@ fn play1(a: u8, b: u8) -> u64 {
 // Z - win,
 fn play2(a: u8, b: u8) -> u64 {
     match (a, b) {
-        (b'A', b'X') => 3 + 0,
+        (b'A', b'X') => 3,
         (b'A', b'Y') => 1 + 3,
         (b'A', b'Z') => 2 + 6,
-        (b'B', b'X') => 1 + 0,
+        (b'B', b'X') => 1,
         (b'B', b'Y') => 2 + 3,
         (b'B', b'Z') => 3 + 6,
-        (b'C', b'X') => 2 + 0,
+        (b'C', b'X') => 2,
         (b'C', b'Y') => 3 + 3,
         (b'C', b'Z') => 1 + 6,
-        _ => 0
+        _ => 0,
     }
 }
 
@@ -57,14 +57,9 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let part1 = input.iter()
-        .map(|(a, b)| play1(*a, *b))
-        .sum::<u64>();
+    let part1 = input.iter().map(|(a, b)| play1(*a, *b)).sum::<u64>();
     println!("{}", part1);
 
-    let part2 = input.iter()
-        .map(|(a, b)| play2(*a, *b))
-        .sum::<u64>();
+    let part2 = input.iter().map(|(a, b)| play2(*a, *b)).sum::<u64>();
     println!("{}", part2);
-
 }
