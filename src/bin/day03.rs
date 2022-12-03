@@ -15,51 +15,11 @@ fn main() {
         .sum::<usize>();
     println!("{}", part1);
 
-    println!("{}", part2(&lines));
-}
-
-// Brute-force enumeration of subsets-of-3 to assign valid item type
-fn part2(lines: &[String]) -> usize {
-    let n = lines.len();
-    let mut code = vec!['?'; n];
-
-    for x in 0..(n - 2) {
-        if code[x] != '?' {
-            continue;
-        }
-        for y in (x + 1)..n {
-            if code[y] != '?' {
-                continue;
-            }
-            for z in (y + 1)..n {
-                if code[z] != '?' {
-                    continue;
-                }
-                let overlap = and3(&lines[x], &lines[y], &lines[z]);
-                if overlap.len() == 1 {
-                    let w = overlap[0];
-                    if code[x] == '?' && code[y] == '?' && code[z] == '?' {
-                        code[x] = w;
-                        code[y] = w;
-                        code[z] = w;
-                    }
-                }
-            }
-        }
-    }
-
-    // println!("code:\n{:?}", code);
-    // let mut map: HashMap<char, Vec<String>> = HashMap::new();
-    // for (i, x) in code.iter().enumerate() {
-    //     map.entry(*x).or_default().push(lines[i].to_string());
-    // }
-    // println!("{:#?}", map);
-
-    if code.contains(&'?') {
-        panic!("Unassigned items detected")
-    }
-
-    code.iter().map(|chr| priority(*chr)).sum::<usize>() / 3
+    let part2 = lines.chunks(3)
+        .flat_map(|chunk| and3(&chunk[0], &chunk[1], &chunk[2]))
+        .map(|chr| priority(chr))
+        .sum::<usize>();
+    println!("{}", part2);
 }
 
 fn split(s: &str) -> (&str, &str) {
