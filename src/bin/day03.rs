@@ -15,7 +15,8 @@ fn main() {
         .sum::<usize>();
     println!("{}", part1);
 
-    let part2 = lines.chunks(3)
+    let part2 = lines
+        .chunks(3)
         .flat_map(|chunk| and3(&chunk[0], &chunk[1], &chunk[2]))
         .map(priority)
         .sum::<usize>();

@@ -31,22 +31,22 @@ struct State {
 impl State {
     fn apply1(&mut self, m: &Move) {
         for _ in 0..m.count {
-            self.move_one(m.src-1, m.dst-1)
+            self.move_one(m.src - 1, m.dst - 1)
         }
     }
 
     fn apply2(&mut self, m: &Move) {
         if m.count == 1 {
-            self.move_one(m.src-1, m.dst-1);
+            self.move_one(m.src - 1, m.dst - 1);
         } else {
             let mut tmp = Vec::with_capacity(m.count);
             for _ in 0..m.count {
-                if let Some(item) = self.stacks[m.src-1].pop() {
+                if let Some(item) = self.stacks[m.src - 1].pop() {
                     tmp.push(item);
                 }
             }
             for item in tmp.into_iter().rev() {
-                self.stacks[m.dst-1].push(item);
+                self.stacks[m.dst - 1].push(item);
             }
         }
     }
@@ -76,7 +76,9 @@ fn parse(lines: &[String]) -> (State, Vec<Move>) {
     let state = it.next().unwrap();
     let state = parse_state(state);
 
-    let moves = it.next().unwrap()
+    let moves = it
+        .next()
+        .unwrap()
         .iter()
         .map(|line| parse_move(line))
         .collect();
@@ -85,7 +87,9 @@ fn parse(lines: &[String]) -> (State, Vec<Move>) {
 }
 
 fn parse_state(lines: &[String]) -> State {
-    let indices = lines.last().unwrap()
+    let indices = lines
+        .last()
+        .unwrap()
         .chars()
         .enumerate()
         .filter(|(_, chr)| chr.is_numeric())
@@ -94,22 +98,21 @@ fn parse_state(lines: &[String]) -> State {
 
     let mut stacks: Vec<Vec<char>> = vec![Vec::new(); indices.len()];
 
-    lines.iter()
-        .rev().skip(1)
-        .for_each(|row| {
-            for (idx, pos) in indices.iter().enumerate() {
-                let chr = row.chars().nth(*pos).unwrap();
-                if chr != ' ' {
-                    stacks[idx].push(chr);
-                }
+    lines.iter().rev().skip(1).for_each(|row| {
+        for (idx, pos) in indices.iter().enumerate() {
+            let chr = row.chars().nth(*pos).unwrap();
+            if chr != ' ' {
+                stacks[idx].push(chr);
             }
-        });
+        }
+    });
 
     State { stacks }
 }
 
 fn parse_move(line: &str) -> Move {
-    let parsed = line.split_ascii_whitespace()
+    let parsed = line
+        .split_ascii_whitespace()
         .into_iter()
         .filter_map(|item| item.parse::<usize>().ok())
         .collect::<Vec<_>>();

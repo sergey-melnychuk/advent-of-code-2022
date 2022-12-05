@@ -1,16 +1,19 @@
 use advent_of_code_2022::lines;
 
 fn main() {
-    let pairs = lines().into_iter()
+    let pairs = lines()
+        .into_iter()
         .map(|line| parse_line(&line))
         .collect::<Vec<_>>();
 
-    let part1 = pairs.iter()
+    let part1 = pairs
+        .iter()
         .filter(|(a, b)| contain(a, b) || contain(b, a))
         .count();
     println!("{}", part1);
 
-    let part2 = pairs.iter()
+    let part2 = pairs
+        .iter()
         .filter(|(a, b)| overlap(a, b) || overlap(b, a))
         .count();
     println!("{}", part2);
