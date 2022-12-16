@@ -1,6 +1,7 @@
 use std::{
     collections::{HashMap, HashSet, VecDeque},
-    hash::Hash, time::Instant,
+    hash::Hash,
+    time::Instant,
 };
 
 use advent_of_code_2022::lines;
@@ -12,19 +13,22 @@ fn main() {
         .map(|valve| (valve.name, valve))
         .collect::<HashMap<_, _>>();
 
-    let mut at = Instant::now();
+    let at = Instant::now();
     let time: isize = 30;
-    let (part1, _) = flow(&valves, &['A', 'A'], HashSet::new(), time, vec![]);
+    let index = index(&valves);
+    let (part1, _) = flow(&index, &valves, &['A', 'A'], HashSet::new(), time, vec![]);
     println!("{} ({} ms)", part1, at.elapsed().as_millis());
 
     // Inspired by: https://github.com/tipa16384/adventofcode/blob/main/2022/puzzle16.py
-    at = Instant::now();
+
+    let at = Instant::now();
     let time: isize = 26;
-    let (cost1, path) = flow(&valves, &['A', 'A'], HashSet::new(), time, vec![]);
-    let open = path.into_iter()
-        .map(|(name, _)| name.clone())
+    let (cost1, path) = flow(&index, &valves, &['A', 'A'], HashSet::new(), time, vec![]);
+    let open = path
+        .into_iter()
+        .map(|(name, _)| name)
         .collect::<HashSet<_>>();
-    let (cost2, _) = flow(&valves, &['A', 'A'], open, time, vec![]);
+    let (cost2, _) = flow(&index, &valves, &['A', 'A'], open, time, vec![]);
     println!("{} ({} ms)", cost1 + cost2, at.elapsed().as_millis());
 }
 
@@ -37,64 +41,75 @@ struct Valve {
     path: Vec<Name>,
 }
 
-fn flow(valves: &HashMap<Name, Valve>, at: &Name, open: HashSet<Name>, time: isize, path: Vec<(Name, isize)>) -> (isize, Vec<(Name, isize)>) {
-    next(valves, at, &open, time)
-        .into_iter()
-        .map(|(name, dist, cost)| {
-            let open = extend(&open, &name);
-            let time = time - dist - 1;
-            let mut path = path.clone();
-            path.push((name.clone(), time));
-            let (more, next) = flow(valves, &name, open, time, path.clone());
-            (cost + more, if next.is_empty() {path} else {next})
+fn index(valves: &HashMap<Name, Valve>) -> HashMap<Name, HashMap<Name, isize>> {
+    valves
+        .iter()
+        .map(|(name, _)| {
+            let dist = scan(valves, name)
+                .into_iter()
+                .filter(|(n, _)| valves[n].rate > 0)
+                .collect();
+            (*name, dist)
         })
-        .max_by_key(|(cost, _)| *cost)
-        .unwrap_or_default()
+        .collect()
 }
 
-fn next(
+fn flow(
+    index: &HashMap<Name, HashMap<Name, isize>>,
     valves: &HashMap<Name, Valve>,
     at: &Name,
-    open: &HashSet<Name>,
+    open: HashSet<Name>,
     time: isize,
-) -> Vec<(Name, isize, isize)> {
-    let mut next = scan(valves, at.clone())
-        .into_iter()
-        .filter(|(name, _)| valves.get(name).unwrap().rate > 0)
-        .filter(|(name, _)| !open.contains(name))
-        .filter(|(_, dist)| *dist < time)
-        .map(|(name, dist)| {
-            (
-                name,
-                dist,
-                cost(time, dist, valves.get(&name).unwrap().rate),
-            )
-        })
-        .collect::<Vec<_>>();
+    path: Vec<(Name, isize)>,
+) -> (isize, Vec<(Name, isize)>) {
+    if time <= 0 {
+        return (0, path);
+    }
 
-    next.sort_by_key(|(_, _, cost)| -cost);
-    next
+    let valve = &valves[at];
+    let score = valve.rate * time.max(0);
+
+    let mut top_score = 0;
+    let mut top_path = path.clone();
+
+    for (next, dist) in &index[at] {
+        if open.contains(next) || time - dist - 1 <= 0 {
+            continue;
+        }
+
+        let (sub_score, sub_path) = flow(
+            index,
+            valves,
+            next,
+            extend(&open, next),
+            time - dist - 1,
+            append(&path, &(*next, time - dist - 1)),
+        );
+
+        if sub_score > top_score {
+            top_score = sub_score;
+            top_path = sub_path;
+        }
+    }
+
+    (score + top_score, top_path)
 }
 
-fn cost(time: isize, dist: isize, rate: isize) -> isize {
-    (time - 1 - dist) * rate
-}
-
-fn scan(valves: &HashMap<Name, Valve>, at: Name) -> HashMap<Name, isize> {
+fn scan(valves: &HashMap<Name, Valve>, at: &Name) -> HashMap<Name, isize> {
     let mut dist = HashMap::new();
     valves.keys().for_each(|name| {
-        dist.insert(name.clone(), isize::MAX);
+        dist.insert(*name, isize::MAX);
     });
-    dist.insert(at.clone(), 0);
+    dist.insert(*at, 0);
 
     let mut seen: HashSet<Name> = HashSet::new();
-    seen.insert(at.clone());
+    seen.insert(*at);
     let mut frontier: VecDeque<Name> = VecDeque::new();
-    frontier.push_back(at.clone());
+    frontier.push_back(*at);
 
     while !frontier.is_empty() {
         let name = frontier.pop_front().unwrap();
-        seen.insert(name.clone());
+        seen.insert(name);
 
         let valve = valves.get(&name).unwrap();
         for next in &valve.path {
@@ -103,13 +118,19 @@ fn scan(valves: &HashMap<Name, Valve>, at: Name) -> HashMap<Name, isize> {
             }
             let d = dist[&name] + 1;
             if dist[next] > d {
-                dist.insert(next.clone(), d);
+                dist.insert(*next, d);
             }
-            frontier.push_back(next.clone());
+            frontier.push_back(*next);
         }
     }
 
     dist
+}
+
+fn append<T: Clone>(vec: &Vec<T>, item: &T) -> Vec<T> {
+    let mut cloned = vec.to_owned();
+    cloned.push(item.clone());
+    cloned
 }
 
 fn extend<T: Eq + Clone + Hash>(set: &HashSet<T>, item: &T) -> HashSet<T> {
