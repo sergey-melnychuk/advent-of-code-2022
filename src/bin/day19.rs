@@ -25,6 +25,8 @@ fn main() {
     println!("{}", part2);
 }
 
+// Inspired by:
+// https://github.com/wilkotom/AoC2022/blob/main/day19/src/main.rs
 fn bfs(cost: &Cost, time: i32) -> i32 {
     let robots = Robots {
         ore: 1,
