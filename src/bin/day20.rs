@@ -30,8 +30,8 @@ fn ans(xs: &[i64]) -> i64 {
 // https://github.com/wilkotom/AoC2022/blob/main/day20/src/main.rs
 fn mix(xs: &[i64], key: i64, rounds: usize) -> Vec<i64> {
     let mut ret = xs
-        .to_owned()
-        .into_iter()
+        .iter()
+        .copied()
         .map(|x| x * key)
         .enumerate()
         .collect::<Vec<_>>();

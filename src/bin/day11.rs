@@ -64,7 +64,7 @@ impl Monkey {
             .iter()
             .map(|item| {
                 let value = f(apply(&self.op, *item));
-                let target = (if value % self.test == 0 { 0 } else { 1 }) as usize;
+                let target = usize::from(value % self.test != 0);
                 let monkey = self.target[target];
                 Item { monkey, value }
             })
