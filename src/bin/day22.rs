@@ -10,7 +10,8 @@ fn main() {
         .chain(grid.pins.iter())
         .all(|cell| side(cell) > 0);
     if !ok {
-        panic!("Input is not aligned as expected");
+        eprintln!("Input is not aligned as expected");
+        return;
     }
 
     let mut chip = Chip::new(&grid, start(&grid), Face::East);
