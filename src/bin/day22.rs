@@ -406,6 +406,9 @@ fn next2(grid: &Grid, cell: Cell, face: Face) -> Option<(Cell, Face)> {
 
 const SIDE: i64 = 50;
 
+// Return the "side" (1 to 6) of the cube where given cell belongs.
+// If the cell is unexpected within shape, returns -1.
+// 
 // The input is expected to have shape like below:
 //
 //    222333
