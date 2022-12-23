@@ -51,19 +51,25 @@ impl<'a> Chip<'a> {
                     // println!("\tcell: {:?}, face: {:?}", self.cell, self.face);
                 } else {
                     break;
-                }    
+                }
             }
         }
     }
 
     #[allow(dead_code)]
     fn dump(&self) -> String {
-        let rows = self.grid.cells.iter()
+        let rows = self
+            .grid
+            .cells
+            .iter()
             .chain(self.grid.walls.iter())
             .map(|cell| cell.row)
             .max()
             .unwrap();
-        let cols = self.grid.cells.iter()
+        let cols = self
+            .grid
+            .cells
+            .iter()
             .chain(self.grid.walls.iter())
             .map(|cell| cell.col)
             .max()
@@ -71,12 +77,14 @@ impl<'a> Chip<'a> {
 
         let path = self.path.iter().cloned().collect::<HashSet<_>>();
         let last = self.path.last().unwrap();
-        (1..=rows).into_iter()
+        (1..=rows)
+            .into_iter()
             .map(|row| {
-                (1..=cols).into_iter()
+                (1..=cols)
+                    .into_iter()
                     .map(|col| {
                         let cell = Cell::of(row, col);
-                        let c = if path.contains(&cell) {
+                        if path.contains(&cell) {
                             if &cell == last {
                                 '0'
                             } else {
@@ -88,10 +96,10 @@ impl<'a> Chip<'a> {
                             '#'
                         } else {
                             ' '
-                        };
-                        c
+                        }
                     })
-                    .collect::<String>() + "\n"
+                    .collect::<String>()
+                    + "\n"
             })
             .collect::<String>()
     }
@@ -130,7 +138,9 @@ impl Grid {
     fn next(&self, cell: Cell, face: Face) -> Option<Cell> {
         match face {
             Face::North => {
-                let min = self.cells.iter()
+                let min = self
+                    .cells
+                    .iter()
                     .chain(self.walls.iter())
                     .filter(|c| c.col == cell.col)
                     .map(|c| c.row)
@@ -139,7 +149,9 @@ impl Grid {
                 let next = if cell.row > min {
                     Cell::of(cell.row - 1, cell.col)
                 } else {
-                    let max = self.cells.iter()
+                    let max = self
+                        .cells
+                        .iter()
                         .chain(self.walls.iter())
                         .filter(|c| c.col == cell.col)
                         .map(|c| c.row)
@@ -159,9 +171,11 @@ impl Grid {
                     // println!("\t\tempty");
                     None
                 }
-            },
+            }
             Face::South => {
-                let max = self.cells.iter()
+                let max = self
+                    .cells
+                    .iter()
                     .chain(self.walls.iter())
                     .filter(|c| c.col == cell.col)
                     .map(|c| c.row)
@@ -171,7 +185,9 @@ impl Grid {
                 let next = if cell.row < max {
                     Cell::of(cell.row + 1, cell.col)
                 } else {
-                    let min = self.cells.iter()
+                    let min = self
+                        .cells
+                        .iter()
                         .chain(self.walls.iter())
                         .filter(|c| c.col == cell.col)
                         .map(|c| c.row)
@@ -192,9 +208,11 @@ impl Grid {
                     // println!("\t\tempty");
                     None
                 }
-            },
+            }
             Face::West => {
-                let min = self.cells.iter()
+                let min = self
+                    .cells
+                    .iter()
                     .chain(self.walls.iter())
                     .filter(|c| c.row == cell.row)
                     .map(|c| c.col)
@@ -203,7 +221,9 @@ impl Grid {
                 let next = if cell.col > min {
                     Cell::of(cell.row, cell.col - 1)
                 } else {
-                    let max = self.cells.iter()
+                    let max = self
+                        .cells
+                        .iter()
                         .chain(self.walls.iter())
                         .filter(|c| c.row == cell.row)
                         .map(|c| c.col)
@@ -224,18 +244,22 @@ impl Grid {
                     // println!("\t\tempty");
                     None
                 }
-            },
+            }
             Face::East => {
-                let max = self.cells.iter()
-                        .chain(self.walls.iter())
-                        .filter(|c| c.row == cell.row)
-                        .map(|c| c.col)
-                        .max()
-                        .unwrap();
+                let max = self
+                    .cells
+                    .iter()
+                    .chain(self.walls.iter())
+                    .filter(|c| c.row == cell.row)
+                    .map(|c| c.col)
+                    .max()
+                    .unwrap();
                 let next = if cell.col < max {
                     Cell::of(cell.row, cell.col + 1)
                 } else {
-                    let min = self.cells.iter()
+                    let min = self
+                        .cells
+                        .iter()
                         .chain(self.walls.iter())
                         .filter(|c| c.row == cell.row)
                         .map(|c| c.col)
@@ -262,12 +286,12 @@ impl Grid {
 }
 
 fn list(lines: &[String], chr: char) -> impl Iterator<Item = Cell> + '_ {
-    lines.iter()
-        .enumerate()
-        .flat_map(move |(row, line)| line.chars()
+    lines.iter().enumerate().flat_map(move |(row, line)| {
+        line.chars()
             .enumerate()
             .filter(move |(_, c)| *c == chr)
-            .map(move |(col, _)| Cell::of(row + 1, col + 1)))
+            .map(move |(col, _)| Cell::of(row + 1, col + 1))
+    })
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -289,15 +313,15 @@ impl Face {
         match (self, c) {
             (Face::North, 'L') => Face::West,
             (Face::South, 'L') => Face::East,
-            (Face::East,  'L') => Face::North,
-            (Face::West,  'L') => Face::South,
+            (Face::East, 'L') => Face::North,
+            (Face::West, 'L') => Face::South,
 
             (Face::North, 'R') => Face::East,
             (Face::South, 'R') => Face::West,
-            (Face::East,  'R') => Face::South,
-            (Face::West,  'R') => Face::North,
+            (Face::East, 'R') => Face::South,
+            (Face::West, 'R') => Face::North,
 
-            _ => panic!("Unsupported turn: {}", c)
+            _ => panic!("Unsupported turn: {}", c),
         }
     }
 
@@ -306,7 +330,7 @@ impl Face {
             Face::North => 3,
             Face::South => 1,
             Face::East => 0,
-            Face::West => 2,   
+            Face::West => 2,
         }
     }
 }
@@ -314,7 +338,7 @@ impl Face {
 fn parse(lines: Vec<String>) -> (Grid, Vec<Step>) {
     let mut it = lines.split(|line| line.is_empty());
     let grid = Grid::parse(it.next().unwrap());
-    let path = it.next().unwrap().into_iter().next().unwrap();
+    let path = it.next().unwrap().iter().next().unwrap();
     let path = parse_path(path);
 
     (grid, path)
@@ -355,20 +379,23 @@ mod day22 {
     #[test]
     fn test_parse_path() {
         let input = "10R5L5R10L4R5L5";
-        assert_eq!(parse_path(input), vec![
-            Step::Move(10),
-            Step::Turn('R'),
-            Step::Move(5),
-            Step::Turn('L'),
-            Step::Move(5),
-            Step::Turn('R'),
-            Step::Move(10),
-            Step::Turn('L'),
-            Step::Move(4),
-            Step::Turn('R'),
-            Step::Move(5),
-            Step::Turn('L'),
-            Step::Move(5),
-        ]);
+        assert_eq!(
+            parse_path(input),
+            vec![
+                Step::Move(10),
+                Step::Turn('R'),
+                Step::Move(5),
+                Step::Turn('L'),
+                Step::Move(5),
+                Step::Turn('R'),
+                Step::Move(10),
+                Step::Turn('L'),
+                Step::Move(4),
+                Step::Turn('R'),
+                Step::Move(5),
+                Step::Turn('L'),
+                Step::Move(5),
+            ]
+        );
     }
 }
