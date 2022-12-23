@@ -28,7 +28,7 @@ impl Face {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Cell {
     pub row: i64,
     pub col: i64,
@@ -108,7 +108,7 @@ impl Grid {
         !self.pins.contains(cell)
     }
 
-    fn bound_all(&self) -> (Cell, Cell) {
+    pub fn bound_all(&self) -> (Cell, Cell) {
         let min = self
             .pins
             .iter()
@@ -137,6 +137,10 @@ impl Grid {
     }
 
     pub fn dump(&self) -> String {
+        self.dump_with_extra(Default::default())
+    }
+
+    pub fn dump_with_extra(&self, extra: HashSet<Cell>) -> String {
         let (min, max) = self.bound_all();
 
         (min.row..=max.row)
@@ -146,7 +150,9 @@ impl Grid {
                     .into_iter()
                     .map(|col| {
                         let cell = Cell::of(row, col);
-                        if self.dots.contains(&cell) {
+                        if extra.contains(&cell) {
+                            'X'
+                        } else if self.dots.contains(&cell) {
                             '.'
                         } else if self.pins.contains(&cell) {
                             '#'
