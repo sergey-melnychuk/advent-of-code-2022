@@ -28,7 +28,6 @@ const PIECES: &str = "####
 fn main() {
     let at = Instant::now();
     let steam = &lines()[0];
-    //println!("steam: {}", steam.len());
 
     let pieces = PIECES
         .lines()
@@ -45,7 +44,6 @@ fn main() {
 
     let part1 = screen.max();
     println!("{} ({} ms)", part1, at.elapsed().as_millis());
-    // 3215
 
     let n: isize = 1000000000000;
 
@@ -61,8 +59,6 @@ fn main() {
         let state = State { head, piece, steam };
         m += 1;
         if seen.contains_key(&state) {
-            //println!("screen cells: {} (max: {})", screen.cells.len(), screen.max());
-            //println!("cycle: {:?}, m2: {:?}, m1: {:?}, offset: {}", state, (m, screen.max()), seen[&state], offset);
             break (
                 state.clone(),
                 (m, screen.max() as isize),
@@ -76,16 +72,13 @@ fn main() {
 
     let full_cycles = (n - n1) / (n2 - n1);
     let remaining_steps = (n - n1) % (n2 - n1);
-    //println!("a={} b={}", full_cycles, remaining_steps);
 
-    //let offset = screen.shrink();
     for i in 0..remaining_steps {
         let piece = (n1 as usize + i as usize) % pieces.len();
         screen.piece(pieces[piece].clone());
     }
     let part2 = max1 + full_cycles * (max2 - max1) + (screen.max() as isize) - max2;
     println!("{} ({} ms)", part2, at.elapsed().as_millis());
-    // 1575811209487
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
@@ -110,7 +103,6 @@ impl Add<Dot> for Dot {
 
 #[derive(Debug, Clone)]
 struct Piece {
-    // width: isize,
     height: isize,
     dots: Vec<Dot>,
 }
@@ -155,14 +147,6 @@ impl Piece {
     fn add(&mut self, one: &Dot) {
         self.dots.iter_mut().for_each(|dot| *dot = *dot + *one);
     }
-
-    // fn xmin(&self) -> isize {
-    //     self.dots.iter().map(|dot| dot.x).min().unwrap_or_default()
-    // }
-
-    // fn xmax(&self) -> isize {
-    //     self.xmin() + self.width
-    // }
 
     fn lshift(&mut self) {
         let one = Dot::of(-1, 0);
@@ -268,7 +252,6 @@ impl Screen {
             .map(|idx| (idx, self.column(idx).max().unwrap_or_default()))
             .for_each(|(idx, max)| head[idx] = max - min);
 
-        //println!("HEAD: min={} head={:?}", min, head);
         (min, head)
     }
 }

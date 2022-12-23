@@ -118,15 +118,14 @@ fn size2(entry: &Entry, out: &mut usize, target: usize) -> usize {
 
 fn main() {
     let root = parse(lines());
-    //dump(&root, 0);
 
     let (size, part1) = part1(&root);
-    println!("{}", part1); // 1517599
+    println!("{}", part1);
 
     let total: usize = 70000000;
     let unused: usize = 30000000;
 
     let target = unused - (total - size);
     let part2 = part2(&root, target);
-    println!("{}", part2); // 2481982
+    println!("{}", part2);
 }

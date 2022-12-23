@@ -4,20 +4,17 @@ use advent_of_code_2022::{lines, Cell, Face, Grid};
 
 fn main() {
     let mut grid = Grid::parse(&lines(), (0, 0));
-    //println!("{}", grid.dump());
 
     let mut step: usize = 0;
     for _ in 0..10 {
         let fs = faces(step);
         round(&mut grid, &fs);
         step += 1;
-        // println!("\nround: {}\n{}", step, grid.dump());
     }
 
     let part1 = {
         let mut empty: usize = 0;
         let (min, max) = grid.bound_pin();
-        // println!("min: {:?}, max: {:?}", min, max);
         for row in min.row..=max.row {
             for col in min.col..=max.col {
                 let cell = Cell::of(row, col);
@@ -34,12 +31,10 @@ fn main() {
         let fs = faces(step);
         let n = round(&mut grid, &fs);
         step += 1;
-        //println!("\nround: {}\n{}", step, grid.dump());
         if n == 0 {
             break step;
         }
     };
-
     println!("{}", part2);
 }
 
@@ -76,8 +71,6 @@ fn round(grid: &mut Grid, faces: &[Face]) -> usize {
                 .for_each(|next| steps.entry(next).or_default().push(*cell))
         });
 
-    // steps.iter()
-    //     .for_each(|(cell, from)| println!("cell: {:?}, from: {:?}", cell, from));
     let ret = steps.len();
 
     steps
