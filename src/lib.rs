@@ -1,5 +1,5 @@
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     io::{self, BufRead},
     ops::Add,
 };
@@ -80,6 +80,10 @@ impl Cell {
     pub fn hi(&self, that: &Cell) -> Cell {
         Cell::of(self.row.max(that.row), self.col.max(that.col))
     }
+
+    pub fn fits(&self, min: &Cell, max: &Cell) -> bool {
+        self.row >= min.row && self.col >= min.col && self.row <= max.row && self.col <= max.col
+    }
 }
 
 impl Add for Cell {
@@ -102,6 +106,12 @@ impl Grid {
             dots: list(lines, '.', offset).collect(),
             pins: list(lines, '#', offset).collect(),
         }
+    }
+
+    pub fn parse_with_extra(lines: &[String], offset: (i64, i64)) -> (Self, Vec<(Cell, char)>) {
+        let parsed = Self::parse(lines, offset);
+        let extra = extra(lines, &|c| c == '#' || c == '.', offset);
+        (parsed, extra.collect())
     }
 
     pub fn is_dot(&self, cell: &Cell) -> bool {
@@ -140,7 +150,7 @@ impl Grid {
         self.dump_with_extra(Default::default())
     }
 
-    pub fn dump_with_extra(&self, extra: HashSet<Cell>) -> String {
+    pub fn dump_with_extra(&self, extra: HashMap<Cell, char>) -> String {
         let (min, max) = self.bound_all();
 
         (min.row..=max.row)
@@ -150,8 +160,8 @@ impl Grid {
                     .into_iter()
                     .map(|col| {
                         let cell = Cell::of(row, col);
-                        if extra.contains(&cell) {
-                            'X'
+                        if extra.contains_key(&cell) {
+                            extra[&cell]
                         } else if self.dots.contains(&cell) {
                             '.'
                         } else if self.pins.contains(&cell) {
@@ -173,5 +183,21 @@ fn list(lines: &[String], chr: char, offset: (i64, i64)) -> impl Iterator<Item =
             .enumerate()
             .filter(move |(_, c)| *c == chr)
             .map(move |(col, _)| Cell::of(row as i64 + offset.0, col as i64 + offset.1))
+    })
+}
+
+fn extra<'a, F: Fn(char) -> bool>(
+    lines: &'a [String],
+    skip: &'a F,
+    offset: (i64, i64),
+) -> impl Iterator<Item = (Cell, char)> + 'a {
+    lines.iter().enumerate().flat_map(move |(row, line)| {
+        line.chars()
+            .enumerate()
+            .filter(move |(_, c)| !skip(*c))
+            .map(move |(col, chr)| {
+                let cell = Cell::of(row as i64 + offset.0, col as i64 + offset.1);
+                (cell, chr)
+            })
     })
 }
