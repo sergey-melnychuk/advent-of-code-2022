@@ -30,12 +30,12 @@ impl Face {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Cell {
-    pub row: i64,
-    pub col: i64,
+    pub row: i32,
+    pub col: i32,
 }
 
 impl Cell {
-    pub fn of(row: i64, col: i64) -> Self {
+    pub fn of(row: i32, col: i32) -> Self {
         Self { row, col }
     }
 
@@ -101,14 +101,14 @@ pub struct Grid {
 }
 
 impl Grid {
-    pub fn parse(lines: &[String], offset: (i64, i64)) -> Self {
+    pub fn parse(lines: &[String], offset: (i32, i32)) -> Self {
         Self {
             dots: list(lines, '.', offset).collect(),
             pins: list(lines, '#', offset).collect(),
         }
     }
 
-    pub fn parse_with_extra(lines: &[String], offset: (i64, i64)) -> (Self, Vec<(Cell, char)>) {
+    pub fn parse_with_extra(lines: &[String], offset: (i32, i32)) -> (Self, Vec<(Cell, char)>) {
         let parsed = Self::parse(lines, offset);
         let extra = extra(lines, &|c| c == '#' || c == '.', offset);
         (parsed, extra.collect())
@@ -177,26 +177,26 @@ impl Grid {
     }
 }
 
-fn list(lines: &[String], chr: char, offset: (i64, i64)) -> impl Iterator<Item = Cell> + '_ {
+fn list(lines: &[String], chr: char, offset: (i32, i32)) -> impl Iterator<Item = Cell> + '_ {
     lines.iter().enumerate().flat_map(move |(row, line)| {
         line.chars()
             .enumerate()
             .filter(move |(_, c)| *c == chr)
-            .map(move |(col, _)| Cell::of(row as i64 + offset.0, col as i64 + offset.1))
+            .map(move |(col, _)| Cell::of(row as i32 + offset.0, col as i32 + offset.1))
     })
 }
 
 fn extra<'a, F: Fn(char) -> bool>(
     lines: &'a [String],
     skip: &'a F,
-    offset: (i64, i64),
+    offset: (i32, i32),
 ) -> impl Iterator<Item = (Cell, char)> + 'a {
     lines.iter().enumerate().flat_map(move |(row, line)| {
         line.chars()
             .enumerate()
             .filter(move |(_, c)| !skip(*c))
             .map(move |(col, chr)| {
-                let cell = Cell::of(row as i64 + offset.0, col as i64 + offset.1);
+                let cell = Cell::of(row as i32 + offset.0, col as i32 + offset.1);
                 (cell, chr)
             })
     })

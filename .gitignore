@@ -1,1 +1,5 @@
 /target
+
+# flamegraph output
+*.svg
+*.data*

@@ -405,7 +405,7 @@ fn next2(grid: &Grid, cell: Cell, face: Face) -> Option<(Cell, Face)> {
     }
 }
 
-const SIDE: i64 = 50;
+const SIDE: i32 = 50;
 
 // Return the "side" (1 to 6) of the cube where given cell belongs.
 // If the cell is unexpected within shape, returns -1.
@@ -444,7 +444,7 @@ enum Step {
     Turn(char),
 }
 
-fn score(f: Face) -> i64 {
+fn score(f: Face) -> i32 {
     match f {
         Face::North => 3,
         Face::South => 1,
